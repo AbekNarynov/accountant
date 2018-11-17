@@ -1,5 +1,8 @@
 {
     "name": "Accountant",
+    "version": "1.0.1",
+    "revision": "20181117",
+    "build": "",
     "description": "Accountant",
     "keywords": ["Accountant"],
     "homepage": "http://abeknarynov.ru/accountant/web/",
