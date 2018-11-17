@@ -2,20 +2,20 @@
 
 namespace app\controllers;
 
-use app\models\Income;
-use app\models\IncomeSearch;
 use app\models\Location;
-use app\models\Source;
-use app\models\User;
+use app\models\Reason;
+use app\models\ReasonLocation;
+use app\models\ReasonLocationSearch;
 use Yii;
 use yii\filters\VerbFilter;
+use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 
 /**
- * IncomeController implements the CRUD actions for Income model.
+ * ReasonLocationController implements the CRUD actions for ReasonLocation model.
  */
-class IncomeController extends Controller
+class ReasonLocationController extends Controller
 {
     /**
      * {@inheritdoc}
@@ -33,25 +33,22 @@ class IncomeController extends Controller
     }
 
     /**
-     * Lists all Income models.
+     * Lists all ReasonLocation models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new IncomeSearch();
+        $searchModel = new ReasonLocationSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-        $incomeSum = IncomeSearch::find()->select(['SUM(`sum`) AS sum'])->one();
 
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
-            'incomeSum' => $incomeSum->sum,
         ]);
     }
 
     /**
-     * Displays a single Income model.
+     * Displays a single ReasonLocation model.
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
@@ -64,46 +61,38 @@ class IncomeController extends Controller
     }
 
     /**
-     * Creates a new Income model.
+     * Creates a new ReasonLocation model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new Income();
+        $model = new ReasonLocation();
 
-        $locations = Location::find()->asArray()->all();
-        $locationList = [];
-        foreach ($locations as $item) {
-            $locationList[$item['id']] = $item['name'];
-        }
+        $reason = Reason::find()->asArray()->all();
+        $reason = ArrayHelper::map($reason, 'id', 'name');
 
-        $users = User::find()->select(['`id`, `username` as name'])->asArray()->all();
-        $userList = [];
-        foreach ($users as $item) {
-            $userList[$item['id']] = $item['name'];
+        $busyLocations = ReasonLocation::find()->select('location_id')->distinct()->asArray()->all();
+        $locations = [];
+        foreach ($busyLocations as $busyLocation) {
+            $locations[] = $busyLocation['location_id'];
         }
-
-        $sources = Source::find()->asArray()->all();
-        $sourceList = [];
-        foreach ($sources as $item) {
-            $sourceList[$item['id']] = $item['name'];
-        }
+        $location = Location::find()->where(['not in', 'id', $locations])->asArray()->all();
+        $location = ArrayHelper::map($location, 'id', 'name');
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['index', 'id' => $model->id]);
+            return $this->redirect(['reason-location/create']);
         }
 
         return $this->render('create', [
             'model' => $model,
-            'location' => $locationList,
-            'user' => $userList,
-            'source' => $sourceList,
+            'reason' => $reason,
+            'location' => $location,
         ]);
     }
 
     /**
-     * Updates an existing Income model.
+     * Updates an existing ReasonLocation model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -112,28 +101,8 @@ class IncomeController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
-        $locations = Location::find()->asArray()->all();
-        $locationList = [];
-        foreach ($locations as $item) {
-            $locationList[$item['id']] = $item['name'];
-        }
-
-        $users = User::find()->select(['id, `username` as name'])->asArray()->all();
-        $userList = [];
-        foreach ($users as $item) {
-            $userList[$item['id']] = $item['name'];
-        }
-
-        $sources = Source::find()->asArray()->all();
-        $sourceList = [];
-        foreach ($sources as $item) {
-            $sourceList[$item['id']] = $item['name'];
-        }
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        }
+        $reason = ArrayHelper::map(Reason::find()->asArray()->all(), 'id', 'name');
+        $location = ArrayHelper::map(Location::find()->asArray()->all(), 'id', 'name');
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
@@ -141,14 +110,13 @@ class IncomeController extends Controller
 
         return $this->render('update', [
             'model' => $model,
-            'location' => $locationList,
-            'user' => $userList,
-            'source' => $sourceList,
+            'reason' => $reason,
+            'location' => $location,
         ]);
     }
 
     /**
-     * Deletes an existing Income model.
+     * Deletes an existing ReasonLocation model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -162,18 +130,18 @@ class IncomeController extends Controller
     }
 
     /**
-     * Finds the Income model based on its primary key value.
+     * Finds the ReasonLocation model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Income the loaded model
+     * @return ReasonLocation the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Income::findOne($id)) !== null) {
+        if (($model = ReasonLocation::findOne($id)) !== null) {
             return $model;
         }
 
-        throw new NotFoundHttpException(Yii::t('app', 'The requested page does not exist.'));
+        throw new NotFoundHttpException(Yii::t('reason_location', 'The requested page does not exist.'));
     }
 }

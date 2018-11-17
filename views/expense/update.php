@@ -4,6 +4,8 @@ use yii\helpers\Html;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Expense */
+/* @var $reason array */
+/* @var $location array */
 
 $this->title = Yii::t('expense', 'Update Expense:') . ' ' . $model->id;
 $this->params['breadcrumbs'][] = ['label' => Yii::t('expense', 'Expenses'), 'url' => ['index']];

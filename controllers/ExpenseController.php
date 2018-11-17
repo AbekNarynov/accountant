@@ -4,11 +4,13 @@ namespace app\controllers;
 
 use app\models\Expense;
 use app\models\ExpenseSearch;
+use app\models\IncomeSearch;
 use app\models\Location;
 use app\models\Reason;
 use app\models\User;
 use Yii;
 use yii\filters\VerbFilter;
+use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 
@@ -40,13 +42,16 @@ class ExpenseController extends Controller
     {
         $searchModel = new ExpenseSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
         $expenseSum = ExpenseSearch::find()->select(['SUM(`sum`) AS sum'])->one();
+        $incomeSum = IncomeSearch::find()->select(['SUM(`sum`) AS sum'])->one();
+        $difference = $incomeSum->sum - $expenseSum->sum;
 
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
             'expenseSum' => $expenseSum->sum,
+            'incomeSum' => $incomeSum->sum,
+            'difference' => $difference,
         ]);
     }
 
@@ -78,7 +83,7 @@ class ExpenseController extends Controller
             $locationList[$item['id']] = $item['name'];
         }
 
-        $users = User::find()->select(['id, CONCAT(`name`, " ", `surname`, " ", `middle_name`) as name'])->asArray()->all();
+        $users = User::find()->select(['`id`, `username` as name'])->asArray()->all();
         $userList = [];
         foreach ($users as $item) {
             $userList[$item['id']] = $item['name'];
@@ -119,7 +124,7 @@ class ExpenseController extends Controller
             $locationList[$item['id']] = $item['name'];
         }
 
-        $users = User::find()->select(['id, CONCAT(`name`, " ", `surname`, " ", `middle_name`) as name'])->asArray()->all();
+        $users = User::find()->select(['id, `username` as name'])->asArray()->all();
         $userList = [];
         foreach ($users as $item) {
             $userList[$item['id']] = $item['name'];
@@ -149,12 +154,33 @@ class ExpenseController extends Controller
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
 
         return $this->redirect(['index']);
+    }
+
+    /**
+     * Get Locations By Reason Id
+     * @return string
+     */
+    public function actionGetLocationsByReasonId()
+    {
+        $reason = Reason::findOne(Yii::$app->request->post('reasonId'));
+        $locations = $reason->getLocations()->asArray()->all();
+
+        if (!empty($locations)) {
+            $locations = ArrayHelper::map($locations, 'id', 'name');
+        } else {
+            $locations = Location::find()->asArray()->all();
+            $locations = ArrayHelper::map($locations, 'id', 'name');
+        }
+
+        return json_encode($locations, JSON_UNESCAPED_UNICODE);
     }
 
     /**

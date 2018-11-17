@@ -54,4 +54,31 @@ class Expense extends \yii\db\ActiveRecord
             'description' => Yii::t('expense', 'Description'),
         ];
     }
+
+    /**
+     * Get Reason
+     * @return \yii\db\ActiveQuery
+     */
+    public function getReason()
+    {
+        return $this->hasOne(Reason::className(), ['id' => 'reason_id']);
+    }
+
+    /**
+     * Get User
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUser()
+    {
+        return $this->hasOne(User::className(), ['id' => 'user_id']);
+    }
+
+    /**
+     * Get Location
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLocation()
+    {
+        return $this->hasOne(Location::className(), ['id' => 'location_id']);
+    }
 }

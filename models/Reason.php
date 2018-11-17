@@ -54,4 +54,14 @@ class Reason extends \yii\db\ActiveRecord
             'is_regular' => Yii::t('app', 'Is Regular'),
         ];
     }
+
+    /**
+     * Get Locations
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLocations()
+    {
+        return $this->hasMany(Location::className(), ['id' => 'location_id'])
+            ->viaTable('reason_location', ['reason_id' => 'id']);
+    }
 }

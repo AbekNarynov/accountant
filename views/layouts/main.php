@@ -46,6 +46,7 @@ AppAsset::register($this);
                 ['label' => Yii::t('menu', 'Reason'), 'url' => ['/reason/index']],
                 ['label' => Yii::t('menu', 'Source'), 'url' => ['/source/index']],
                 ['label' => Yii::t('menu', 'Users'), 'url' => ['/rbac/default/index']],
+                ['label' => Yii::t('menu', 'Reason-Location'), 'url' => ['/reason-location/index']],
                 Yii::$app->user->isGuest ? (
                 ['label' => Yii::t('menu', 'Login'), 'url' => ['/site/login']]
                 ) : (
