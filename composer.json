@@ -1,8 +1,11 @@
 {
-    "name": "yiisoft/yii2-app-basic",
-    "description": "Yii 2 Basic Project Template",
-    "keywords": ["yii2", "framework", "basic", "project template"],
-    "homepage": "http://www.yiiframework.com/",
+    "name": "Accountant",
+    "version": "1.0.1",
+    "revision": "20181117",
+    "build": "",
+    "description": "Accountant",
+    "keywords": ["Accountant"],
+    "homepage": "http://abeknarynov.ru/accountant/web/",
     "type": "project",
     "license": "BSD-3-Clause",
     "support": {
